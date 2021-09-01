@@ -1,19 +1,14 @@
 package com.example.chatclient
 
-import android.content.Context
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
 import android.widget.TextView
-import androidx.datastore.core.DataStore
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import java.io.File
 import com.example.chatclient.databinding.FragmentLoginBinding
-import java.io.InputStream
 
 
 class LogInFragment : Fragment() {
@@ -48,10 +43,6 @@ class LogInFragment : Fragment() {
                 ipTextView.text = lines[1]
             }
 
-        binding.previous.setOnClickListener {
-            findNavController().navigate(R.id.action_LoginFragment_to_SecondFragment)
-        }
-
         binding.Done.setOnClickListener {
             val nameTextView = view.findViewById<TextView>(R.id.editTextTextPersonName)
             val name = nameTextView.text.toString()
@@ -64,6 +55,11 @@ class LogInFragment : Fragment() {
                 out.write("\n")
                 out.write(ip)
             }
+
+            Global.userName = name
+            Global.serverIpAndPort = ip
+
+            findNavController().navigate(R.id.action_LoginFragment_to_SecondFragment)
         }
     }
 }

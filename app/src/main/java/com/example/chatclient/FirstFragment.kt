@@ -6,24 +6,18 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.chatclient.databinding.FragmentFirstBinding
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 import okhttp3.*
 import java.io.IOException
 
-import org.jetbrains.annotations.NotNull
 import okhttp3.Response
 
-import okhttp3.FormBody
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
-
-import okhttp3.RequestBody
 
 import okhttp3.OkHttpClient
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -88,7 +82,7 @@ private var _binding: FragmentFirstBinding? = null
             {
                 "date": "2021-09-27T23:09:27.529507+00:00",
                 "message": "fifth test",
-                "author": "Luca",
+                "author": "${Global.userName}",
                 "recipient": "Jerry"
             }
             """.trimIndent()
@@ -98,7 +92,7 @@ private var _binding: FragmentFirstBinding? = null
             try {
                 viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                     val postRequest: Request = Request.Builder()
-                        .url("https://192.168.1.117:49153/chat")
+                        .url("https://" + Global.serverIpAndPort + "/chat")
                         .post(requestBody)
                         .build()
 
