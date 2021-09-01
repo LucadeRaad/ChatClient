@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import java.io.File
 import com.example.chatclient.databinding.FragmentLoginBinding
+import java.io.InputStream
 
 
 class LogInFragment : Fragment() {
@@ -35,7 +36,17 @@ class LogInFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        //val nameTextView = view.findViewById<TextView>(R.id.editTextTextPersonName)
+        val file = File(context?.filesDir, "settings.txt")
+
+        if (file.exists()) {
+                val nameTextView = view.findViewById<TextView>(R.id.editTextTextPersonName)
+                val ipTextView = view.findViewById<TextView>(R.id.editTextIpAddress)
+
+                var lines:List<String> = file.readLines()
+
+                nameTextView.text = lines[0]
+                ipTextView.text = lines[1]
+            }
 
         binding.previous.setOnClickListener {
             findNavController().navigate(R.id.action_LoginFragment_to_SecondFragment)
@@ -47,8 +58,6 @@ class LogInFragment : Fragment() {
 
             val ipTextView = view.findViewById<TextView>(R.id.editTextIpAddress)
             val ip = ipTextView.text.toString()
-
-            val file = File(context?.filesDir, "settings.txt")
 
             File(file.toString()).bufferedWriter().use { out ->
                 out.write(name)
