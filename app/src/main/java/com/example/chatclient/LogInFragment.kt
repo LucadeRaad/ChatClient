@@ -20,7 +20,7 @@ class LogInFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
         _binding = FragmentLoginBinding.inflate(inflater, container, false)
         return binding.root
@@ -37,7 +37,7 @@ class LogInFragment : Fragment() {
                 val nameTextView = view.findViewById<TextView>(R.id.editTextTextPersonName)
                 val ipTextView = view.findViewById<TextView>(R.id.editTextIpAddress)
 
-                var lines:List<String> = file.readLines()
+                val lines:List<String> = file.readLines()
 
                 nameTextView.text = lines[0]
                 ipTextView.text = lines[1]
