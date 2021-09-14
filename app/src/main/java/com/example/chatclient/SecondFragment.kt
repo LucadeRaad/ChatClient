@@ -11,7 +11,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.beust.klaxon.Klaxon
 
 import com.example.chatclient.databinding.FragmentSecondBinding
 import com.google.android.material.snackbar.Snackbar
@@ -21,12 +20,32 @@ import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
+import java.io.StringReader
+import java.lang.Exception
 import java.security.SecureRandom
 import java.security.cert.X509Certificate
 import javax.net.ssl.HostnameVerifier
 import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.JsonAdapter
+import com.squareup.moshi.Types
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import java.lang.reflect.Type
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /**
  * A simple [Fragment] subclass as the second destination in the navigation.
@@ -82,15 +101,29 @@ private var _binding: FragmentSecondBinding? = null
                 val response = client.newCall(getRequest).execute()
 
                 println(response.request)
-                println("response.body!!.string() looks like: " + response.body!!.string())
-
-                //val responseString = response.body!!.string()
 
                 val responseBodyString = response.body!!.string()
+                println("response.body!!.string() looks like: $responseBodyString")
 
-                val friend = Klaxon().parseArray<Friend>(responseBodyString)
+                try {
+                    val moshi = Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
 
-                println(friend)
+                    val type: Type = Types.newParameterizedType(
+                        MutableList::class.java,
+                        Friend::class.java
+                    )
+
+                    val jsonAdapter: JsonAdapter<List<Friend>> =
+                        moshi.adapter(type)
+
+                    val friends: List<Friend>? = jsonAdapter.fromJson(responseBodyString)
+
+
+                }
+                catch (e: Exception)
+                {
+                    println("#####$e")
+                }
 
                 Snackbar.make(
                     view,

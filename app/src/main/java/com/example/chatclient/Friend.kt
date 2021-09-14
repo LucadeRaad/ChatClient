@@ -1,8 +1,11 @@
 package com.example.chatclient
 
-import com.beust.klaxon.Json
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
+
+@JsonClass(generateAdapter = true)
 
 data class Friend(
-    @Json(index = 1) val Name: String,
-    @Json(index = 2) val Presence: Boolean
+    @Json(name = "name") val Name: String,
+    @Json(name = "presence") val Presence: Boolean
 )
