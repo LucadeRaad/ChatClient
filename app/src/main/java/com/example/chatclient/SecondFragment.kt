@@ -35,6 +35,7 @@ import com.squareup.moshi.Moshi
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Types
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import kotlinx.coroutines.delay
 import java.lang.reflect.Type
 
 /**
@@ -84,6 +85,7 @@ private var _binding: FragmentSecondBinding? = null
             .url("https://${Global.serverIpAndPort}/friend?name=${Global.userName}")
             .build()
 
+        var friends: List<Friend>? = null
 
         try {
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
@@ -105,32 +107,30 @@ private var _binding: FragmentSecondBinding? = null
                     val jsonAdapter: JsonAdapter<List<Friend>> =
                         moshi.adapter(type)
 
-                    val friends: List<Friend>? = jsonAdapter.fromJson(responseBodyString)
-
-                    val recyclerID = view.findViewById<RecyclerView>(R.id.friendRecycler)
-
-                    recyclerID.adapter = friends?.let { FriendsAdapter(it) }
-
-                    recyclerID.apply {
-                        layoutManager = LinearLayoutManager(activity)
-                    }
-
-
+                    friends = jsonAdapter.fromJson(responseBodyString)
                 }
                 catch (e: Exception)
                 {
                     println("#####$e")
                 }
-
-                Snackbar.make(
-                    view,
-                    "Loaded friend list!",
-                    Snackbar.LENGTH_SHORT
-                ).show()
             }
         } catch (e: IOException) {
             e.printStackTrace()
         }
+
+        val recyclerID = view.findViewById<RecyclerView>(R.id.friendRecycler)
+
+        recyclerID.adapter = friends?.let { FriendsAdapter(it) }
+
+        recyclerID.apply {
+            layoutManager = LinearLayoutManager(activity)
+        }
+
+        Snackbar.make(
+            view,
+            "Loaded friend list!",
+            Snackbar.LENGTH_SHORT
+        ).show()
     }
 override fun onDestroyView() {
         super.onDestroyView()
