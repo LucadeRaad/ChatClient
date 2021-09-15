@@ -36,6 +36,8 @@ import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Types
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import kotlinx.coroutines.delay
+import okhttp3.internal.wait
+import java.lang.Thread.sleep
 import java.lang.reflect.Type
 
 /**
@@ -87,6 +89,8 @@ private var _binding: FragmentSecondBinding? = null
 
         var friends: List<Friend>? = null
 
+        var hasFinishedNetworkJob = false
+
         try {
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                 val response = client.newCall(getRequest).execute()
@@ -97,25 +101,26 @@ private var _binding: FragmentSecondBinding? = null
                 println("response.body!!.string() looks like: $responseBodyString")
 
                 try {
-                    val moshi = Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
+                    val jsonAdapterFriendArray: JsonAdapter<List<Friend>> =
+                        Global.moshi.adapter(Global.type)
 
-                    val type: Type = Types.newParameterizedType(
-                        MutableList::class.java,
-                        Friend::class.java
-                    )
-
-                    val jsonAdapter: JsonAdapter<List<Friend>> =
-                        moshi.adapter(type)
-
-                    friends = jsonAdapter.fromJson(responseBodyString)
+                    friends = jsonAdapterFriendArray.fromJson(responseBodyString)
                 }
                 catch (e: Exception)
                 {
                     println("#####$e")
                 }
+
+                hasFinishedNetworkJob = true;
             }
         } catch (e: IOException) {
             e.printStackTrace()
+        }
+
+        while(!hasFinishedNetworkJob)
+        {
+            //Kotlin does not have a join thread
+            sleep(500)
         }
 
         val recyclerID = view.findViewById<RecyclerView>(R.id.friendRecycler)
