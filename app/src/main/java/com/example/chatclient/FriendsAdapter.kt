@@ -3,53 +3,42 @@ package com.example.chatclient
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 
-class FriendsAdapter(private val onClick: (Friend) -> Unit) :
-    ListAdapter<Friend, FriendsAdapter.FriendViewHolder>(FriendDiffCallback) {
+class FriendsAdapter(private val friendlist: List<Friend>) : RecyclerView.Adapter<FriendsAdapter.FriendsViewHolder>() {
 
-    /* ViewHolder for Friend, takes in the inflated view and the onClick behavior. */
-    class FriendViewHolder(itemView: View, val onClick: (Friend) -> Unit) :
-        RecyclerView.ViewHolder(itemView) {
-        private var currentFriend: Friend? = null
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FriendsViewHolder {
+        val itemView = LayoutInflater.from(parent.context).inflate(R.layout.recycler_item,
+        parent, false)
 
-        init {
-            itemView.setOnClickListener {
-                currentFriend?.let {
-                    onClick(it)
-                }
-            }
+        return FriendsViewHolder(itemView)
+    }
+
+    override fun onBindViewHolder(holder: FriendsViewHolder, position: Int) {
+        val currentItem = friendlist[position]
+
+        holder.imageView.setImageResource(when(currentItem.Presence) {
+            true -> 1
+            false -> 0
+        })
+
+        holder.friendName.text = currentItem.Name
+        
+        holder.friendStatus.text = when(currentItem.Presence) {
+            true -> "online"
+            false -> "offline"
         }
-
-        /* Bind Friend name and image. */
-        fun bind(friend: Friend) {
-            currentFriend = friend
-        }
     }
 
-    /* Creates and inflates view and return FriendViewHolder. */
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FriendViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.fragment_second, parent, false)
-        return FriendViewHolder(view, onClick)
-    }
+    override fun getItemCount() = friendlist.size
 
-    /* Gets current Friend and uses it to bind view. */
-    override fun onBindViewHolder(holder: FriendViewHolder, position: Int) {
-        val Friend = getItem(position)
-        holder.bind(Friend)
-
-    }
-}
-
-object FriendDiffCallback : DiffUtil.ItemCallback<Friend>() {
-    override fun areItemsTheSame(oldItem: Friend, newItem: Friend): Boolean {
-        return oldItem == newItem
-    }
-
-    override fun areContentsTheSame(oldItem: Friend, newItem: Friend): Boolean {
-        return oldItem.Name == newItem.Name
+    class FriendsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val imageView: ImageView = itemView.findViewById(R.id.image_view)
+        val friendName: TextView = itemView.findViewById(R.id.friend_name)
+        val friendStatus: TextView = itemView.findViewById(R.id.friend_status)
     }
 }

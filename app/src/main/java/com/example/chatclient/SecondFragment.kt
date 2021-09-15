@@ -11,8 +11,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.chatclient.databinding.ActivityMainBinding.inflate
+import com.example.chatclient.databinding.ContentMainBinding.inflate
 
 import com.example.chatclient.databinding.FragmentSecondBinding
+import com.example.chatclient.databinding.FragmentSecondBinding.inflate
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -33,19 +36,6 @@ import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Types
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import java.lang.reflect.Type
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /**
  * A simple [Fragment] subclass as the second destination in the navigation.
@@ -86,8 +76,6 @@ private var _binding: FragmentSecondBinding? = null
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        //val request = Request.Builder().url("https://" + Global.serverIpAndPort + "/chat?name=${Global.userName}").get().build()
-
         val client = OkHttpClient.Builder().apply {
             ignoreAllSSLErrors()
         }.build()
@@ -95,6 +83,7 @@ private var _binding: FragmentSecondBinding? = null
         val getRequest: Request = Request.Builder()
             .url("https://${Global.serverIpAndPort}/friend?name=${Global.userName}")
             .build()
+
 
         try {
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
@@ -118,6 +107,14 @@ private var _binding: FragmentSecondBinding? = null
 
                     val friends: List<Friend>? = jsonAdapter.fromJson(responseBodyString)
 
+                    val recyclerID = view.findViewById<RecyclerView>(R.id.friendRecycler)
+
+                    recyclerID.adapter = friends?.let { FriendsAdapter(it) }
+
+                    recyclerID.apply {
+                        layoutManager = LinearLayoutManager(activity)
+                    }
+
 
                 }
                 catch (e: Exception)
@@ -133,12 +130,6 @@ private var _binding: FragmentSecondBinding? = null
             }
         } catch (e: IOException) {
             e.printStackTrace()
-        }
-
-        val recyclerID = view.findViewById<RecyclerView>(R.id.friendRecycler)
-
-        recyclerID.apply {
-            layoutManager = LinearLayoutManager(activity)
         }
     }
 override fun onDestroyView() {
