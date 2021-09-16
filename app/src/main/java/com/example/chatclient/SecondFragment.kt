@@ -1,23 +1,15 @@
 package com.example.chatclient
 
 import android.app.AlertDialog
-import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.chatclient.databinding.ActivityMainBinding.inflate
-import com.example.chatclient.databinding.ContentMainBinding.inflate
-
 import com.example.chatclient.databinding.FragmentSecondBinding
-import com.example.chatclient.databinding.FragmentSecondBinding.inflate
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -25,31 +17,12 @@ import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
-import java.io.StringReader
 import java.lang.Exception
-import java.security.SecureRandom
-import java.security.cert.X509Certificate
-import javax.net.ssl.HostnameVerifier
-import javax.net.ssl.SSLContext
-import javax.net.ssl.TrustManager
-import javax.net.ssl.X509TrustManager
-import com.squareup.moshi.Moshi
 import com.squareup.moshi.JsonAdapter
-import com.squareup.moshi.Types
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import kotlinx.coroutines.delay
-import okhttp3.internal.wait
 import java.lang.Thread.sleep
-import java.lang.reflect.Type
-import android.content.DialogInterface
-
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.Toast
-
-import android.app.Application
-import android.text.Editable
-import java.util.*
 import kotlin.collections.ArrayList
 
 
@@ -81,13 +54,13 @@ private var _binding: FragmentSecondBinding? = null
 
         val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
             LinearLayout.LayoutParams.MATCH_PARENT)
-            editText.setLayoutParams(layoutParams)
+        editText.layoutParams = layoutParams
 
         AlertDialog.Builder(requireContext())
-            .setTitle("${action.toString()} a friend")
+            .setTitle("$action a friend")
             .setMessage("Please input your new friend's name:")
             .setView(editText)
-            .setPositiveButton("OK") { dialog, which ->
+            .setPositiveButton("OK") { _, _ ->
                 Toast.makeText(requireContext(), "Your friend's name is ${editText.text}",
                     Toast.LENGTH_LONG).show()
                 if (action == FRIENDACTION.Add) {
@@ -119,7 +92,7 @@ private var _binding: FragmentSecondBinding? = null
                     .post(requestBody)
                     .build()
 
-                val response = Global.client.newCall(postRequest).execute()
+                Global.client.newCall(postRequest).execute()
             }
         } catch (e: IOException) {
             e.printStackTrace()
@@ -176,7 +149,7 @@ private var _binding: FragmentSecondBinding? = null
                     println("#####$e")
                 }
 
-                hasFinishedNetworkJob = true;
+                hasFinishedNetworkJob = true
             }
         } catch (e: IOException) {
             e.printStackTrace()
