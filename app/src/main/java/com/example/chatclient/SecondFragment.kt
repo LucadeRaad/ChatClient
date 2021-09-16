@@ -49,6 +49,8 @@ import android.widget.Toast
 
 import android.app.Application
 import android.text.Editable
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 /**
@@ -58,7 +60,7 @@ class SecondFragment : Fragment() {
     private var friends: ArrayList<Friend>? = null
     private var adapter = friends?.let { FriendsAdapter(it) }
 
-    enum class FRIENDACTION {ADD, REMOVE}
+    enum class FRIENDACTION {Add, Remove}
 
 private var _binding: FragmentSecondBinding? = null
     // This property is only valid between onCreateView and
@@ -82,13 +84,13 @@ private var _binding: FragmentSecondBinding? = null
             editText.setLayoutParams(layoutParams)
 
         AlertDialog.Builder(requireContext())
-            .setTitle("EditText Alert")
-            .setMessage("Please input your name..")
+            .setTitle("${action.toString()} a friend")
+            .setMessage("Please input your new friend's name:")
             .setView(editText)
             .setPositiveButton("OK") { dialog, which ->
-                Toast.makeText(requireContext(), "Your name is ${editText.text}",
+                Toast.makeText(requireContext(), "Your friend's name is ${editText.text}",
                     Toast.LENGTH_LONG).show()
-                if (action == FRIENDACTION.ADD) {
+                if (action == FRIENDACTION.Add) {
                     addFriend(editText.text.toString())
                 } else {
                     removeFriend(editText.text.toString())
@@ -139,7 +141,7 @@ private var _binding: FragmentSecondBinding? = null
         }
     }
 
-    fun removeFriend(friend: String) {
+    private fun removeFriend(friend: String) {
 
     }
 
@@ -201,10 +203,10 @@ private var _binding: FragmentSecondBinding? = null
         ).show()
 
         binding.addFriendButton.setOnClickListener {
-            showAddItemDialog(FRIENDACTION.ADD)
+            showAddItemDialog(FRIENDACTION.Add)
         }
         binding.removeFriendButton.setOnClickListener {
-            showAddItemDialog(FRIENDACTION.REMOVE)
+            showAddItemDialog(FRIENDACTION.Remove)
         }
     }
 override fun onDestroyView() {
