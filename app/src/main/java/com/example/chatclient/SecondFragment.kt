@@ -30,9 +30,9 @@ import kotlin.collections.ArrayList
 /**
  * A simple [Fragment] subclass as the second destination in the navigation.
  */
-class SecondFragment : Fragment() {
+class SecondFragment : Fragment(), FriendsAdapter.OnItemClickListener {
     private var friends: ArrayList<Friend>? = null
-    private var adapter = friends?.let { FriendsAdapter(it) }
+    private var adapter = friends?.let { FriendsAdapter(it, this@SecondFragment) }
 
     enum class FRIENDACTION {Add, Remove}
 
@@ -149,6 +149,10 @@ private var _binding: FragmentSecondBinding? = null
             Toast.LENGTH_LONG).show()
     }
 
+    override fun onItemClick(position: Int) {
+        Toast.makeText(requireContext(), "Friend $position clicked", Toast.LENGTH_SHORT).show()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -173,7 +177,7 @@ private var _binding: FragmentSecondBinding? = null
 
                     friends = jsonAdapterFriendArray.fromJson(responseBodyString) as ArrayList<Friend>?
 
-                    adapter = friends?.let { FriendsAdapter(it) }
+                    adapter = friends?.let { FriendsAdapter(it, this@SecondFragment) }
                 }
                 catch (e: Exception)
                 {
