@@ -23,6 +23,7 @@ import java.lang.Thread.sleep
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.Toast
+import okhttp3.internal.EMPTY_REQUEST
 import kotlin.collections.ArrayList
 
 
@@ -58,11 +59,9 @@ private var _binding: FragmentSecondBinding? = null
 
         AlertDialog.Builder(requireContext())
             .setTitle("$action a friend")
-            .setMessage("Please input your new friend's name:")
+            .setMessage("Please input the friend's name:")
             .setView(editText)
             .setPositiveButton("OK") { _, _ ->
-                Toast.makeText(requireContext(), "Your friend's name is ${editText.text}",
-                    Toast.LENGTH_LONG).show()
                 if (action == FRIENDACTION.Add) {
                     addFriend(editText.text.toString())
                 } else {
@@ -112,10 +111,42 @@ private var _binding: FragmentSecondBinding? = null
         if (index != null) {
             adapter?.notifyItemInserted(index)
         }
+
+        Toast.makeText(requireContext(), "$friend has been added",
+            Toast.LENGTH_LONG).show()
     }
 
     private fun removeFriend(friend: String) {
+        try {
+            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+                val deleteRequest: Request = Request.Builder()
+                    .url("https://${Global.serverIpAndPort}/friend?name=${Global.userName}&friend=$friend")
+                    .delete(EMPTY_REQUEST)
+                    .build()
 
+                Global.client.newCall(deleteRequest).execute()
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+
+        var index = 0
+        for (item in friends!!) {
+            if (item.Name == friend) {
+                adapter?.notifyItemRemoved(index)
+
+                friends!!.removeAt(index)
+
+                Toast.makeText(requireContext(), "$friend has been removed",
+                    Toast.LENGTH_LONG).show()
+
+                return
+            }
+            index += 1
+        }
+
+        Toast.makeText(requireContext(), "Could not find $friend",
+            Toast.LENGTH_LONG).show()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
