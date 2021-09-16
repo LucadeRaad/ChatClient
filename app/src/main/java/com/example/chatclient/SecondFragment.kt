@@ -1,5 +1,7 @@
 package com.example.chatclient
 
+import android.app.AlertDialog
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -39,11 +41,21 @@ import kotlinx.coroutines.delay
 import okhttp3.internal.wait
 import java.lang.Thread.sleep
 import java.lang.reflect.Type
+import android.content.DialogInterface
+
+import android.widget.EditText
+import android.widget.LinearLayout
+import android.widget.Toast
+
+import android.app.Application
+
 
 /**
  * A simple [Fragment] subclass as the second destination in the navigation.
  */
 class SecondFragment : Fragment() {
+    private var friends: ArrayList<Friend>? = null
+    private var adapter = friends?.let { FriendsAdapter(it) }
 
 private var _binding: FragmentSecondBinding? = null
     // This property is only valid between onCreateView and
@@ -59,41 +71,86 @@ private var _binding: FragmentSecondBinding? = null
       return binding.root
     }
 
-    private fun OkHttpClient.Builder.ignoreAllSSLErrors(): OkHttpClient.Builder {
-        val naiveTrustManager = object : X509TrustManager {
-            override fun getAcceptedIssuers(): Array<X509Certificate> = arrayOf()
-            override fun checkClientTrusted(certs: Array<X509Certificate>, authType: String) = Unit
-            override fun checkServerTrusted(certs: Array<X509Certificate>, authType: String) = Unit
+    private fun showAddItemDialog() : String {
+        val editText = EditText(requireContext())
+
+        val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.MATCH_PARENT)
+            editText.setLayoutParams(layoutParams)
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("EditText Alert")
+            .setMessage("Please input your name..")
+            .setView(editText)
+            .setPositiveButton("OK") { dialog, which ->
+                Toast.makeText(requireContext(), "Your name is ${editText.text.toString()}",
+                    Toast.LENGTH_LONG).show()
+            }
+            .setNegativeButton("Cancel") { dialog, which ->
+                Toast.makeText(requireContext(), "Cancel is pressed", Toast.LENGTH_LONG).show()
+            }
+            .show()
+
+        return editText.toString()
+    }
+
+    fun addFriend(view: View) {
+        val friend = showAddItemDialog()
+
+        val json = """
+            {
+                "Name": "$friend",
+                "Presence": true
+            }
+            """.trimIndent()
+
+        val requestBody = json.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
+
+        try {
+            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+                val postRequest: Request = Request.Builder()
+                    .url("https://${Global.serverIpAndPort}/friend?name=${Global.userName}")
+                    .post(requestBody)
+                    .build()
+
+                val response = Global.client.newCall(postRequest).execute()
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
         }
 
-        val insecureSocketFactory = SSLContext.getInstance("TLSv1.2").apply {
-            val trustAllCerts = arrayOf<TrustManager>(naiveTrustManager)
-            init(null, trustAllCerts, SecureRandom())
-        }.socketFactory
+        val index = adapter?.itemCount
 
-        sslSocketFactory(insecureSocketFactory, naiveTrustManager)
-        hostnameVerifier(HostnameVerifier { _, _ -> true })
-        return this
+        val newFriend = Friend (
+            Name = friend,
+            Presence = false
+        )
+
+        if (index != null) {
+            friends?.add(index, newFriend)
+        }
+
+        if (index != null) {
+            adapter?.notifyItemInserted(index)
+        }
+    }
+
+    fun removeFriend(view: View) {
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val client = OkHttpClient.Builder().apply {
-            ignoreAllSSLErrors()
-        }.build()
-
         val getRequest: Request = Request.Builder()
             .url("https://${Global.serverIpAndPort}/friend?name=${Global.userName}")
             .build()
-
-        var friends: List<Friend>? = null
 
         var hasFinishedNetworkJob = false
 
         try {
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-                val response = client.newCall(getRequest).execute()
+                val response = Global.client.newCall(getRequest).execute()
 
                 println(response.request)
 
@@ -104,7 +161,9 @@ private var _binding: FragmentSecondBinding? = null
                     val jsonAdapterFriendArray: JsonAdapter<List<Friend>> =
                         Global.moshi.adapter(Global.type)
 
-                    friends = jsonAdapterFriendArray.fromJson(responseBodyString)
+                    friends = jsonAdapterFriendArray.fromJson(responseBodyString) as ArrayList<Friend>?
+
+                    adapter = friends?.let { FriendsAdapter(it) }
                 }
                 catch (e: Exception)
                 {
@@ -125,7 +184,7 @@ private var _binding: FragmentSecondBinding? = null
 
         val recyclerID = view.findViewById<RecyclerView>(R.id.friendRecycler)
 
-        recyclerID.adapter = friends?.let { FriendsAdapter(it) }
+        recyclerID.adapter = adapter
 
         recyclerID.apply {
             layoutManager = LinearLayoutManager(activity)

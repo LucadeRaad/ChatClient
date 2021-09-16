@@ -7,42 +7,45 @@
     android:layout_height="match_parent"
     tools:context=".SecondFragment">
 
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/friendRecycler"
-        android:padding="4dp"
-        android:clipToPadding="false"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:padding="4dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
 
-    <RelativeLayout
-
+    <LinearLayout
+        android:id="@+id/friendButtons"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:clipToPadding="true"
+        android:orientation="horizontal"
+        android:padding="4dp"
+        app:layout_constraintBottom_toBottomOf="@+id/friendRecycler"
+        app:layout_constraintStart_toStartOf="parent">
 
-        <LinearLayout
-            android:id="@+id/friendButtons"
+        <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_alignParentBottom="true">
+            android:layout_weight="1"
+            android:onClick="addFriend"
+            android:text="Add Friend" />
 
-            <Button
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Add Friend"
-                android:layout_weight="1"/>
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="removeFriend"
+            android:text="Lose Friend" />
 
-            <Button
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Lose Friend"
-                android:layout_weight="1"/>
+    </LinearLayout>
 
-        </LinearLayout>
-
-    </RelativeLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
