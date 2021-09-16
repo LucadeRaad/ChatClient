@@ -11,66 +11,52 @@
         android:id="@+id/back"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="409dp"
-        android:layout_marginRight="409dp"
         android:text="@string/back"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/ReceiveChat"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/textInputLayout"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="88dp"
-        android:layout_marginLeft="88dp"
-        app:layout_constraintEnd_toStartOf="@+id/chatRecycler"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:layout_height="40dp"
+        app:layout_constraintBottom_toTopOf="@+id/Send"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/textInputEditText"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:hint="@string/hint"
+            android:textColor="#616161"
+            android:textColorHint="#616161" />
     </com.google.android.material.textfield.TextInputLayout>
-
-    <Button
-        android:id="@+id/ReceiveChat"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="409dp"
-        android:layout_marginRight="409dp"
-        android:text="@string/ReceiveChat"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/Send"
-        app:layout_constraintStart_toEndOf="@+id/back"
-        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/chatRecycler"
         android:layout_width="0dp"
-        android:layout_height="578dp"
-        app:layout_constraintEnd_toStartOf="@+id/textInputEditText"
-        app:layout_constraintStart_toEndOf="@+id/textInputLayout"
-        app:layout_constraintTop_toTopOf="@+id/textInputLayout" />
-
-    <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/textInputEditText"
-        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:hint="@string/hint"
-        android:textColor="#616161"
-        android:textColorHint="#616161"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/textInputLayout"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/chatRecycler"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/back" />
 
     <Button
         android:id="@+id/Send"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@string/SendChat"
-        app:layout_constraintBottom_toBottomOf="@+id/ReceiveChat"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/chatRecycler" />
+
+    <Button
+        android:id="@+id/ReceiveChat"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/ReceiveChat"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/ReceiveChat"
-        app:layout_constraintTop_toTopOf="@+id/ReceiveChat" />
+        app:layout_constraintStart_toEndOf="@+id/back"
+        tools:layout_editor_absoluteY="0dp"
+        tools:visibility="invisible" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
