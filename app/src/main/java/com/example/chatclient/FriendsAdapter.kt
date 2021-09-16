@@ -22,7 +22,7 @@ class FriendsAdapter(private val friendlist: List<Friend>) : RecyclerView.Adapte
         val currentItem = friendlist[position]
 
         holder.imageView.setImageResource(when(currentItem.Presence) {
-            true -> 1
+            true -> 0
             false -> 0
         })
 

@@ -48,6 +48,7 @@ import android.widget.LinearLayout
 import android.widget.Toast
 
 import android.app.Application
+import android.text.Editable
 
 
 /**
@@ -56,6 +57,8 @@ import android.app.Application
 class SecondFragment : Fragment() {
     private var friends: ArrayList<Friend>? = null
     private var adapter = friends?.let { FriendsAdapter(it) }
+
+    enum class FRIENDACTION {ADD, REMOVE}
 
 private var _binding: FragmentSecondBinding? = null
     // This property is only valid between onCreateView and
@@ -71,7 +74,7 @@ private var _binding: FragmentSecondBinding? = null
       return binding.root
     }
 
-    private fun showAddItemDialog() : String {
+    private fun showAddItemDialog(action : FRIENDACTION) {
         val editText = EditText(requireContext())
 
         val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
@@ -83,20 +86,21 @@ private var _binding: FragmentSecondBinding? = null
             .setMessage("Please input your name..")
             .setView(editText)
             .setPositiveButton("OK") { dialog, which ->
-                Toast.makeText(requireContext(), "Your name is ${editText.text.toString()}",
+                Toast.makeText(requireContext(), "Your name is ${editText.text}",
                     Toast.LENGTH_LONG).show()
+                if (action == FRIENDACTION.ADD) {
+                    addFriend(editText.text.toString())
+                } else {
+                    removeFriend(editText.text.toString())
+                }
             }
-            .setNegativeButton("Cancel") { dialog, which ->
+            .setNegativeButton("Cancel") { _, _ ->
                 Toast.makeText(requireContext(), "Cancel is pressed", Toast.LENGTH_LONG).show()
             }
             .show()
-
-        return editText.toString()
     }
 
-    fun addFriend(view: View) {
-        val friend = showAddItemDialog()
-
+    private fun addFriend(friend: String) {
         val json = """
             {
                 "Name": "$friend",
@@ -135,7 +139,7 @@ private var _binding: FragmentSecondBinding? = null
         }
     }
 
-    fun removeFriend(view: View) {
+    fun removeFriend(friend: String) {
 
     }
 
@@ -195,6 +199,13 @@ private var _binding: FragmentSecondBinding? = null
             "Loaded friend list!",
             Snackbar.LENGTH_SHORT
         ).show()
+
+        binding.addFriendButton.setOnClickListener {
+            showAddItemDialog(FRIENDACTION.ADD)
+        }
+        binding.removeFriendButton.setOnClickListener {
+            showAddItemDialog(FRIENDACTION.REMOVE)
+        }
     }
 override fun onDestroyView() {
         super.onDestroyView()
