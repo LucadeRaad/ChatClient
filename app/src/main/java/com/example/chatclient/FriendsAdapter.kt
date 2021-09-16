@@ -5,11 +5,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 
-class FriendsAdapter(private val friendlist: List<Friend>) : RecyclerView.Adapter<FriendsAdapter.FriendsViewHolder>() {
+class FriendsAdapter(private val friendList: List<Friend>) : RecyclerView.Adapter<FriendsAdapter.FriendsViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FriendsViewHolder {
         val itemView = LayoutInflater.from(parent.context).inflate(R.layout.recycler_item,
@@ -19,7 +17,7 @@ class FriendsAdapter(private val friendlist: List<Friend>) : RecyclerView.Adapte
     }
 
     override fun onBindViewHolder(holder: FriendsViewHolder, position: Int) {
-        val currentItem = friendlist[position]
+        val currentItem = friendList[position]
 
         holder.imageView.setImageResource(when(currentItem.Presence) {
             true -> 0
@@ -34,7 +32,7 @@ class FriendsAdapter(private val friendlist: List<Friend>) : RecyclerView.Adapte
         }
     }
 
-    override fun getItemCount() = friendlist.size
+    override fun getItemCount() = friendList.size
 
     class FriendsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val imageView: ImageView = itemView.findViewById(R.id.image_view)

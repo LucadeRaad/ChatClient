@@ -21,13 +21,6 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 
 import okhttp3.OkHttpClient
 import okhttp3.RequestBody.Companion.toRequestBody
-import java.security.SecureRandom
-import java.security.cert.X509Certificate
-import javax.net.ssl.HostnameVerifier
-import javax.net.ssl.SSLContext
-import javax.net.ssl.TrustManager
-import javax.net.ssl.X509TrustManager
-
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
@@ -42,28 +35,11 @@ private var _binding: FragmentFirstBinding? = null
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
       _binding = FragmentFirstBinding.inflate(inflater, container, false)
       return binding.root
 
-    }
-
-    private fun OkHttpClient.Builder.ignoreAllSSLErrors(): OkHttpClient.Builder {
-        val naiveTrustManager = object : X509TrustManager {
-            override fun getAcceptedIssuers(): Array<X509Certificate> = arrayOf()
-            override fun checkClientTrusted(certs: Array<X509Certificate>, authType: String) = Unit
-            override fun checkServerTrusted(certs: Array<X509Certificate>, authType: String) = Unit
-        }
-
-        val insecureSocketFactory = SSLContext.getInstance("TLSv1.2").apply {
-            val trustAllCerts = arrayOf<TrustManager>(naiveTrustManager)
-            init(null, trustAllCerts, SecureRandom())
-        }.socketFactory
-
-        sslSocketFactory(insecureSocketFactory, naiveTrustManager)
-        hostnameVerifier(HostnameVerifier { _, _ -> true })
-        return this
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -74,10 +50,6 @@ private var _binding: FragmentFirstBinding? = null
         }
 
         binding.Send.setOnClickListener {
-            val client = OkHttpClient.Builder().apply {
-                ignoreAllSSLErrors()
-            }.build()
-
             val json = """
             {
                 "date": "2021-09-27T23:09:27.529507+00:00",
@@ -96,7 +68,7 @@ private var _binding: FragmentFirstBinding? = null
                         .post(requestBody)
                         .build()
 
-                    val response = client.newCall(postRequest).execute()
+                    val response = Global.client.newCall(postRequest).execute()
                     Log.d("Debug", response.body!!.string())
                 }
             } catch (e: IOException) {
