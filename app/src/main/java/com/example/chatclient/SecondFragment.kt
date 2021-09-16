@@ -104,7 +104,7 @@ private var _binding: FragmentSecondBinding? = null
         val json = """
             {
                 "Name": "$friend",
-                "Presence": true
+                "Presence": false
             }
             """.trimIndent()
 

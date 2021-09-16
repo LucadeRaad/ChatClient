@@ -12,14 +12,13 @@
         android:id="@+id/friendRecycler"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_above="@id/friendButtons"
         android:clipToPadding="false"
         android:padding="4dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintTop_toBottomOf="@+id/friendButtons" />
 
     <LinearLayout
         android:id="@+id/friendButtons"
@@ -28,9 +27,7 @@
         android:layout_alignParentBottom="true"
         android:clipToPadding="true"
         android:orientation="horizontal"
-        android:padding="4dp"
-        app:layout_constraintBottom_toBottomOf="@+id/friendRecycler"
-        app:layout_constraintStart_toStartOf="parent">
+        android:padding="4dp">
 
         <Button
             android:id="@+id/addFriendButton"
