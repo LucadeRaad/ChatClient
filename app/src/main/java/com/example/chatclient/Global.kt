@@ -8,6 +8,7 @@ import okhttp3.OkHttpClient
 import java.lang.reflect.Type
 import java.security.SecureRandom
 import java.security.cert.X509Certificate
+import java.util.jar.Attributes
 import javax.net.ssl.HostnameVerifier
 import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
@@ -20,11 +21,6 @@ class Global : Application() {
         var serverIpAndPort = ""
 
         val moshi: Moshi = Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
-
-        val type: Type = Types.newParameterizedType(
-            MutableList::class.java,
-            Friend::class.java
-        )
 
         val client = OkHttpClient.Builder().apply {
             ignoreAllSSLErrors()

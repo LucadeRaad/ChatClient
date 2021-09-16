@@ -14,7 +14,7 @@
     <!-- Deprecated Strings -->
     <string name="first_fragment_label">First Fragment</string>
 
-    <string name="next">Next</string>
+    <string name="back">Back</string>
     <string name="ReceiveChat">Receive</string>
     <string name="SendChat">Send</string>
     <string name="previous">Previous</string>
@@ -28,5 +28,8 @@
     <string name="ServerIp">Server IP address:</string>
 
     <string name="done">Done</string>
+    <string name="hint">Enter your message here!</string>
+    <string name="friend_message">Friend Message</string>
+    <string name="friend_status_goes_here">Friend status goes here</string>
 
 </resources>

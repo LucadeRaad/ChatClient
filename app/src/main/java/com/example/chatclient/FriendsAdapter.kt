@@ -39,7 +39,7 @@ class FriendsAdapter(
     inner class FriendsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
     View.OnClickListener {
         val imageView: ImageView = itemView.findViewById(R.id.image_view)
-        val friendName: TextView = itemView.findViewById(R.id.friend_name)
+        val friendName: TextView = itemView.findViewById(R.id.friend_message)
         val friendStatus: TextView = itemView.findViewById(R.id.friend_status)
 
         init {

@@ -23,7 +23,10 @@ import java.lang.Thread.sleep
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.navigation.fragment.findNavController
+import com.squareup.moshi.Types
 import okhttp3.internal.EMPTY_REQUEST
+import java.lang.reflect.Type
 import kotlin.collections.ArrayList
 
 
@@ -150,7 +153,17 @@ private var _binding: FragmentSecondBinding? = null
     }
 
     override fun onItemClick(position: Int) {
-        Toast.makeText(requireContext(), "Friend $position clicked", Toast.LENGTH_SHORT).show()
+        //Toast.makeText(requireContext(), "Friend $position clicked", Toast.LENGTH_SHORT).show()
+        val clickedFriend : Friend? = friends?.get(position)
+
+        val selectedFriend = Bundle()
+
+        if (clickedFriend != null) {
+            selectedFriend.putString("Name", clickedFriend.Name)
+            selectedFriend.putBoolean("Presence", clickedFriend.Presence)
+        }
+
+        findNavController().navigate(R.id.action_SecondFragment_to_FirstFragment, selectedFriend)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -172,8 +185,13 @@ private var _binding: FragmentSecondBinding? = null
                 println("response.body!!.string() looks like: $responseBodyString")
 
                 try {
+                    val type: Type = Types.newParameterizedType(
+                        MutableList::class.java,
+                        Friend::class.java
+                    )
+
                     val jsonAdapterFriendArray: JsonAdapter<List<Friend>> =
-                        Global.moshi.adapter(Global.type)
+                        Global.moshi.adapter(type)
 
                     friends = jsonAdapterFriendArray.fromJson(responseBodyString) as ArrayList<Friend>?
 
