@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -18,12 +19,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.*
 import java.io.IOException
-
-import okhttp3.Response
-
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
-
-import okhttp3.OkHttpClient
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.lang.Exception
 import java.lang.reflect.Type
@@ -58,7 +54,7 @@ private var _binding: FragmentFirstBinding? = null
         super.onViewCreated(view, savedInstanceState)
 
         val getRequest: Request = Request.Builder()
-            .url("https://${Global.serverIpAndPort}/chat?author=${Global.userName}&recipient=$friendName")
+            .url("https://${Global.serverIpAndPort}/chat?author=$friendName&recipient=${Global.userName}")
             .build()
 
         var hasFinishedNetworkJob = false
@@ -117,10 +113,18 @@ private var _binding: FragmentFirstBinding? = null
         }
 
         binding.Send.setOnClickListener {
+            val chatBox = view.findViewById<TextView>(R.id.chatBox)
+            val message = chatBox.text.toString()
+
+            if (message == "")
+            {
+                return@setOnClickListener
+            }
+
             val json = """
             {
                 "date": "2021-09-27T23:09:27.529507+00:00",
-                "message": "fifth test",
+                "message": "$message",
                 "author": "${Global.userName}",
                 "recipient": "$friendName"
             }
@@ -147,25 +151,6 @@ private var _binding: FragmentFirstBinding? = null
                 "Sent a message!",
                 Snackbar.LENGTH_SHORT
             ).show()
-        }
-
-        binding.ReceiveChat.setOnClickListener {
-            val client = OkHttpClient()
-
-            val getRequest: Request = Request.Builder()
-                .url("https://localhost:49153/chat")
-                .build()
-
-            client.newCall(getRequest).enqueue(object : Callback {
-                override fun onFailure(call: Call, e: IOException) {
-                    e.printStackTrace()
-                }
-
-                @Throws(IOException::class)
-                override fun onResponse(call: Call, response: Response) {
-                    println(response.body!!.string())
-                }
-            })
         }
     }
 
