@@ -55,7 +55,7 @@ private var _binding: FragmentFirstBinding? = null
         super.onViewCreated(view, savedInstanceState)
 
         val getRequest: Request = Request.Builder()
-            .url("https://${Global.serverIpAndPort}/chat?author=$friendName&recipient=${Global.userName}")
+            .url("https://${Global.serverIpAndPort}/chat?author=$friendName&recipient=${Global.userName}&isReading=true")
             .build()
 
         var hasFinishedNetworkJob = false
