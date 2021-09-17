@@ -17,8 +17,7 @@
             android:layout_marginEnd="0dp"
             android:text="@string/friend_message"
             android:textColor="@android:color/black"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:textSize="18sp" />
 
         <TextView
             android:id="@+id/message_date"
