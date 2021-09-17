@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.chatclient.databinding.FragmentFirstBinding
 import com.google.android.material.snackbar.Snackbar
+import com.squareup.moshi.Json
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Types
 import kotlinx.coroutines.Dispatchers
@@ -106,8 +107,6 @@ private var _binding: FragmentFirstBinding? = null
             layoutManager = LinearLayoutManager(activity)
         }
 
-
-
         binding.back.setOnClickListener {
             findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)
         }
@@ -144,6 +143,24 @@ private var _binding: FragmentFirstBinding? = null
                 }
             } catch (e: IOException) {
                 e.printStackTrace()
+            }
+
+            val index = adapter?.itemCount
+
+            val newChat = Chat (
+                Date = "just now",
+                Message = message,
+                Author = Global.userName,
+                Recipient = friendName,
+                Read = false
+            )
+
+            if (index != null) {
+                chats?.add(index, newChat)
+            }
+
+            if (index != null) {
+                adapter?.notifyItemInserted(index)
             }
 
             Snackbar.make(
