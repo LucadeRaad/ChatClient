@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.chatclient" >
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.example.chatclient">
+    <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
         android:allowBackup="true"
@@ -17,10 +19,24 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
+
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <!-- This entry makes TimerInitializer discoverable. -->
+            <meta-data  android:name="com.example.chatclient.TimerInitializer"
+                android:value="androidx.startup" />
+        </provider>
     </application>
-    <uses-permission android:name="android.permission.INTERNET"/>
+
+
+
 
 </manifest>
