@@ -53,7 +53,7 @@ private var _binding: FragmentSecondBinding? = null
       return binding.root
     }
 
-    private fun showAddItemDialog(action : FRIENDACTION) {
+    private fun showAddItemDialog(action : FRIENDACTION, view: View) {
         val editText = EditText(requireContext())
 
         val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
@@ -66,9 +66,9 @@ private var _binding: FragmentSecondBinding? = null
             .setView(editText)
             .setPositiveButton("OK") { _, _ ->
                 if (action == FRIENDACTION.Add) {
-                    addFriend(editText.text.toString())
+                    addFriend(editText.text.toString(), view)
                 } else {
-                    removeFriend(editText.text.toString())
+                    removeFriend(editText.text.toString(), view)
                 }
             }
             .setNegativeButton("Cancel") { _, _ ->
@@ -77,7 +77,7 @@ private var _binding: FragmentSecondBinding? = null
             .show()
     }
 
-    private fun addFriend(friend: String) {
+    private fun addFriend(friend: String, view: View) {
         val json = """
             {
                 "Name": "$friend",
@@ -89,12 +89,28 @@ private var _binding: FragmentSecondBinding? = null
 
         try {
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-                val postRequest: Request = Request.Builder()
-                    .url("https://${Global.serverIpAndPort}/friend?name=${Global.userName}")
-                    .post(requestBody)
-                    .build()
+                try {
+                    val postRequest: Request = Request.Builder()
+                        .url("https://${Global.serverIpAndPort}/friend?name=${Global.userName}")
+                        .post(requestBody)
+                        .build()
 
-                Global.client.newCall(postRequest).execute()
+                    Global.client.newCall(postRequest).execute()
+
+                    Snackbar.make(
+                        view,
+                        "Added $friend",
+                        Snackbar.LENGTH_SHORT
+                    ).show()
+                } catch (e: IOException) {
+                    Snackbar.make(
+                        view,
+                        "Could not add $friend",
+                        Snackbar.LENGTH_SHORT
+                    ).show()
+
+                    return@launch
+                }
             }
         } catch (e: IOException) {
             e.printStackTrace()
@@ -115,41 +131,57 @@ private var _binding: FragmentSecondBinding? = null
             adapter?.notifyItemInserted(index)
         }
 
-        Toast.makeText(requireContext(), "$friend has been added",
-            Toast.LENGTH_LONG).show()
+        //Toast.makeText(requireContext(), "$friend has been added", Toast.LENGTH_LONG).show()
     }
 
-    private fun removeFriend(friend: String) {
+    private fun removeFriend(friend: String, view: View) {
+        var isOnline = false
+
         try {
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-                val deleteRequest: Request = Request.Builder()
-                    .url("https://${Global.serverIpAndPort}/friend?name=${Global.userName}&friend=$friend")
-                    .delete(EMPTY_REQUEST)
-                    .build()
+                try {
+                    val deleteRequest: Request = Request.Builder()
+                        .url("https://${Global.serverIpAndPort}/friend?name=${Global.userName}&friend=$friend")
+                        .delete(EMPTY_REQUEST)
+                        .build()
 
-                Global.client.newCall(deleteRequest).execute()
+                    Global.client.newCall(deleteRequest).execute()
+
+                    isOnline = true
+                } catch (e: IOException) {
+                    isOnline = false
+                }
             }
         } catch (e: IOException) {
             e.printStackTrace()
         }
 
-        var index = 0
-        for (item in friends!!) {
-            if (item.Name == friend) {
-                adapter?.notifyItemRemoved(index)
+        if (isOnline) {
 
-                friends!!.removeAt(index)
+            var index = 0
+            for (item in friends!!) {
+                if (item.Name == friend) {
+                    adapter?.notifyItemRemoved(index)
 
-                Toast.makeText(requireContext(), "$friend has been removed",
-                    Toast.LENGTH_LONG).show()
+                    friends!!.removeAt(index)
 
-                return
+                    Snackbar.make(
+                        view,
+                        "Removed $friend",
+                        Snackbar.LENGTH_SHORT
+                    ).show()
+
+                    return
+                }
+                index += 1
             }
-            index += 1
         }
 
-        Toast.makeText(requireContext(), "Could not find $friend",
-            Toast.LENGTH_LONG).show()
+        Snackbar.make(
+            view,
+            "Could not remove $friend",
+            Snackbar.LENGTH_SHORT
+        ).show()
     }
 
     override fun onItemClick(position: Int) {
@@ -177,14 +209,14 @@ private var _binding: FragmentSecondBinding? = null
 
         try {
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-                val response = Global.client.newCall(getRequest).execute()
-
-                println(response.request)
-
-                val responseBodyString = response.body!!.string()
-                println("response.body!!.string() looks like: $responseBodyString")
-
                 try {
+                    val response = Global.client.newCall(getRequest).execute()
+
+                    //println(response.request)
+
+                    val responseBodyString = response.body!!.string()
+                    //println("response.body!!.string() looks like: $responseBodyString")
+
                     val type: Type = Types.newParameterizedType(
                         MutableList::class.java,
                         Friend::class.java
@@ -196,10 +228,22 @@ private var _binding: FragmentSecondBinding? = null
                     friends = jsonAdapterFriendArray.fromJson(responseBodyString) as ArrayList<Friend>?
 
                     adapter = friends?.let { FriendsAdapter(it, this@SecondFragment) }
+
+                    Snackbar.make(
+                        view,
+                        "Loaded friend list!",
+                        Snackbar.LENGTH_SHORT
+                    ).show()
                 }
                 catch (e: Exception)
                 {
                     println("#####$e")
+
+                    Snackbar.make(
+                        view,
+                        "Could not load friend list.",
+                        Snackbar.LENGTH_SHORT
+                    ).show()
                 }
 
                 hasFinishedNetworkJob = true
@@ -222,17 +266,11 @@ private var _binding: FragmentSecondBinding? = null
             layoutManager = LinearLayoutManager(activity)
         }
 
-        Snackbar.make(
-            view,
-            "Loaded friend list!",
-            Snackbar.LENGTH_SHORT
-        ).show()
-
         binding.addFriendButton.setOnClickListener {
-            showAddItemDialog(FRIENDACTION.Add)
+            showAddItemDialog(FRIENDACTION.Add, view)
         }
         binding.removeFriendButton.setOnClickListener {
-            showAddItemDialog(FRIENDACTION.Remove)
+            showAddItemDialog(FRIENDACTION.Remove, view)
         }
     }
 override fun onDestroyView() {
