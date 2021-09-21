@@ -25,15 +25,14 @@
             </intent-filter>
         </activity>
 
-        <provider
+        <!-- <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
             android:exported="false"
             tools:node="merge">
-            <!-- This entry makes TimerInitializer discoverable. -->
             <meta-data  android:name="com.example.chatclient.TimerInitializer"
-                android:value="androidx.startup" />
-        </provider>
+                 android:value="androidx.startup" />
+        </provider> -->
     </application>
 
 

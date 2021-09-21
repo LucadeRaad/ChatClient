@@ -1,7 +1,7 @@
 package com.example.chatclient
 import java.util.*
 
-const val FIFTEEN_SECONDS = 15000.toLong()
+const val FIFTEEN_SECONDS = 15.toLong()
 
 class ServerTimer {
 

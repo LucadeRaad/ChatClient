@@ -2,6 +2,8 @@ package com.example.chatclient
 
 import android.app.AlertDialog
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -11,8 +13,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.chatclient.databinding.FragmentSecondBinding
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -25,6 +25,7 @@ import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.navigation.fragment.findNavController
 import com.squareup.moshi.Types
+import kotlinx.coroutines.*
 import okhttp3.internal.EMPTY_REQUEST
 import java.lang.reflect.Type
 import kotlin.collections.ArrayList
@@ -38,6 +39,12 @@ class SecondFragment : Fragment(), FriendsAdapter.OnItemClickListener {
     private var adapter = friends?.let { FriendsAdapter(it, this@SecondFragment) }
 
     enum class FRIENDACTION {Add, Remove}
+
+    private val backgroundFriendRequests = BackgroundFriendRequests()
+
+    private val getRequest: Request = Request.Builder()
+        .url("https://${Global.serverIpAndPort}/friend?name=${Global.userName}")
+        .build()
 
 private var _binding: FragmentSecondBinding? = null
     // This property is only valid between onCreateView and
@@ -125,9 +132,6 @@ private var _binding: FragmentSecondBinding? = null
 
         if (index != null) {
             friends?.add(index, newFriend)
-        }
-
-        if (index != null) {
             adapter?.notifyItemInserted(index)
         }
 
@@ -136,29 +140,36 @@ private var _binding: FragmentSecondBinding? = null
 
     private fun removeFriend(friend: String, view: View) {
         var isOnline = false
+        var hasFinishedNetworkJob = false
 
         try {
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-                try {
+                isOnline = try {
                     val deleteRequest: Request = Request.Builder()
-                        .url("https://${Global.serverIpAndPort}/friend?name=${Global.userName}&friend=$friend")
-                        .delete(EMPTY_REQUEST)
-                        .build()
+                            .url("https://${Global.serverIpAndPort}/friend?name=${Global.userName}&friend=$friend")
+                            .delete(EMPTY_REQUEST)
+                            .build()
 
                     Global.client.newCall(deleteRequest).execute()
 
-                    isOnline = true
+                    hasFinishedNetworkJob = true
+                    true
                 } catch (e: IOException) {
-                    isOnline = false
+                    hasFinishedNetworkJob = true
+                    false
                 }
             }
         } catch (e: IOException) {
             e.printStackTrace()
         }
 
-        if (isOnline) {
+        while (!hasFinishedNetworkJob && !isOnline) {
+            // Do nothing!
+        }
 
+        if (isOnline) {
             var index = 0
+
             for (item in friends!!) {
                 if (item.Name == friend) {
                     adapter?.notifyItemRemoved(index)
@@ -173,6 +184,7 @@ private var _binding: FragmentSecondBinding? = null
 
                     return
                 }
+
                 index += 1
             }
         }
@@ -198,12 +210,47 @@ private var _binding: FragmentSecondBinding? = null
         findNavController().navigate(R.id.action_SecondFragment_to_FirstFragment, selectedFriend)
     }
 
+    @InternalCoroutinesApi
+    private fun startRepeatingJob(timeInterval: Long): Job {
+        return CoroutineScope(Dispatchers.Default).launch {
+            while (NonCancellable.isActive) {
+
+                // Code here?
+                try {
+                    val response = Global.client.newCall(getRequest).execute()
+
+                    val responseBodyString = response.body!!.string()
+
+                    val type: Type = Types.newParameterizedType(
+                        MutableList::class.java,
+                        Friend::class.java
+                    )
+
+                    val jsonAdapterFriendArray: JsonAdapter<List<Friend>> =
+                        Global.moshi.adapter(type)
+
+                    val newFriends = jsonAdapterFriendArray.fromJson(responseBodyString) as ArrayList<Friend>?
+
+                    if (newFriends != friends) {
+                        friends = newFriends
+
+                        adapter = friends?.let { FriendsAdapter(it, this@SecondFragment) }
+
+                        adapter?.notifyDataSetChanged()
+                    }
+
+                } catch (e: Exception) {
+
+                }
+
+                delay(timeInterval)
+            }
+        }
+    }
+
+    @InternalCoroutinesApi
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        val getRequest: Request = Request.Builder()
-            .url("https://${Global.serverIpAndPort}/friend?name=${Global.userName}")
-            .build()
 
         var hasFinishedNetworkJob = false
 
@@ -272,7 +319,12 @@ private var _binding: FragmentSecondBinding? = null
         binding.removeFriendButton.setOnClickListener {
             showAddItemDialog(FRIENDACTION.Remove, view)
         }
+
+        //var job = startRepeatingJob(20000)
+
+
     }
+
 override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
