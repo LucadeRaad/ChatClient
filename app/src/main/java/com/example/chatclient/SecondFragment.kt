@@ -29,6 +29,10 @@ import kotlinx.coroutines.*
 import okhttp3.internal.EMPTY_REQUEST
 import java.lang.reflect.Type
 import kotlin.collections.ArrayList
+import android.graphics.ColorSpace.Model
+
+
+
 
 
 /**
@@ -215,7 +219,7 @@ private var _binding: FragmentSecondBinding? = null
         return CoroutineScope(Dispatchers.Default).launch {
             while (NonCancellable.isActive) {
 
-                // Code here?
+                println("Started an automatic pull from friends")
                 try {
                     val response = Global.client.newCall(getRequest).execute()
 
@@ -232,11 +236,49 @@ private var _binding: FragmentSecondBinding? = null
                     val newFriends = jsonAdapterFriendArray.fromJson(responseBodyString) as ArrayList<Friend>?
 
                     if (newFriends != friends) {
+
                         friends = newFriends
 
-                        adapter = friends?.let { FriendsAdapter(it, this@SecondFragment) }
+                        friends?.let { adapter?.setFriends(it) }
 
                         adapter?.notifyDataSetChanged()
+
+//                        var i = 0
+//                        for (friend in friends!!)
+//                        {
+//                            adapter?.notifyItemRemoved(0)
+//                            i++
+//                        }
+//
+//                        friends?.clear()
+//
+//                        i = 0
+//                        if (newFriends != null) {
+//                            adapter = FriendsAdapter(newFriends, this@SecondFragment)
+//                            adapter!!.notifyItemInserted(i)
+//                        }
+
+//                        val newAdapter = newFriends?.let { FriendsAdapter(it, this@SecondFragment) }
+//
+//                        val recyclerID = view?.findViewById<RecyclerView>(R.id.friendRecycler)
+//
+//                        if (recyclerID != null) {
+//                            recyclerID.adapter = adapter
+//                        }
+//
+//                        recyclerID?.apply {
+//                            layoutManager = LinearLayoutManager(activity)
+//                        }
+
+                        //friends = newFriends
+                    }
+
+                    view?.let {
+                        Snackbar.make(
+                            it,
+                            "Shungite",
+                            Snackbar.LENGTH_SHORT
+                        ).show()
                     }
 
                 } catch (e: Exception) {
@@ -320,7 +362,7 @@ private var _binding: FragmentSecondBinding? = null
             showAddItemDialog(FRIENDACTION.Remove, view)
         }
 
-        //var job = startRepeatingJob(20000)
+        var job = startRepeatingJob(10000)
 
 
     }

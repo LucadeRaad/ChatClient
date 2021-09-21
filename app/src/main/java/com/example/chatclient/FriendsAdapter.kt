@@ -8,8 +8,12 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
 class FriendsAdapter(
-    private val friendList: List<Friend>,
+    private var friendList: List<Friend>,
     private val listener: OnItemClickListener) : RecyclerView.Adapter<FriendsAdapter.FriendsViewHolder>() {
+
+    fun setFriends(newFriends: List<Friend>) {
+        friendList = newFriends
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FriendsViewHolder {
         val itemView = LayoutInflater.from(parent.context).inflate(R.layout.recycler_item,
