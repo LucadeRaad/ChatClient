@@ -6,8 +6,13 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class ChatsAdapter(private val chatList: List<Chat>) :
+class ChatsAdapter(private var chatList: List<Chat>) :
     RecyclerView.Adapter<ChatsAdapter.ChatViewHolder>() {
+
+    fun setChats(newChats: List<Chat>) {
+        chatList = newChats
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) : ChatViewHolder {
 
         val itemView =  when (viewType == 1) {

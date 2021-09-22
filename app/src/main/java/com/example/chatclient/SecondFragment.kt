@@ -44,8 +44,6 @@ class SecondFragment : Fragment(), FriendsAdapter.OnItemClickListener {
 
     enum class FRIENDACTION {Add, Remove}
 
-    private val backgroundFriendRequests = BackgroundFriendRequests()
-
     private val getRequest: Request = Request.Builder()
         .url("https://${Global.serverIpAndPort}/friend?name=${Global.userName}")
         .build()
@@ -217,6 +215,9 @@ private var _binding: FragmentSecondBinding? = null
     @InternalCoroutinesApi
     private fun startRepeatingJob(timeInterval: Long): Job {
         return CoroutineScope(Dispatchers.Default).launch {
+
+            delay(timeInterval)
+
             while (NonCancellable.isActive) {
 
                 println("Started an automatic pull from friends")
@@ -242,41 +243,12 @@ private var _binding: FragmentSecondBinding? = null
                         friends?.let { adapter?.setFriends(it) }
 
                         adapter?.notifyDataSetChanged()
-
-//                        var i = 0
-//                        for (friend in friends!!)
-//                        {
-//                            adapter?.notifyItemRemoved(0)
-//                            i++
-//                        }
-//
-//                        friends?.clear()
-//
-//                        i = 0
-//                        if (newFriends != null) {
-//                            adapter = FriendsAdapter(newFriends, this@SecondFragment)
-//                            adapter!!.notifyItemInserted(i)
-//                        }
-
-//                        val newAdapter = newFriends?.let { FriendsAdapter(it, this@SecondFragment) }
-//
-//                        val recyclerID = view?.findViewById<RecyclerView>(R.id.friendRecycler)
-//
-//                        if (recyclerID != null) {
-//                            recyclerID.adapter = adapter
-//                        }
-//
-//                        recyclerID?.apply {
-//                            layoutManager = LinearLayoutManager(activity)
-//                        }
-
-                        //friends = newFriends
                     }
 
                     view?.let {
                         Snackbar.make(
                             it,
-                            "Shungite",
+                            "Pulled from friends",
                             Snackbar.LENGTH_SHORT
                         ).show()
                     }
@@ -362,9 +334,7 @@ private var _binding: FragmentSecondBinding? = null
             showAddItemDialog(FRIENDACTION.Remove, view)
         }
 
-        var job = startRepeatingJob(10000)
-
-
+        var job = startRepeatingJob(20000)
     }
 
 override fun onDestroyView() {

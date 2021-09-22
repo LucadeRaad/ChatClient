@@ -16,8 +16,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Types
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import okhttp3.*
 import java.io.IOException
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -51,17 +50,74 @@ private var _binding: FragmentFirstBinding? = null
         return binding.root
     }
 
+    @InternalCoroutinesApi
+    private fun startRepeatingJob(timeInterval: Long): Job {
+        return CoroutineScope(Dispatchers.Default).launch {
+            while (NonCancellable.isActive) {
+
+                delay(timeInterval)
+
+                println("Started an automatic pull from chats")
+                try {
+                    val getRequest: Request = Request.Builder()
+                        .url("https://${Global.serverIpAndPort}/chat?author=$friendName&recipient=${Global.userName}")
+                        .build()
+
+                    val response = Global.client.newCall(getRequest).execute()
+
+                    //println(response.request)
+
+                    val responseBodyString = response.body!!.string()
+                    //println("response.body!!.string() looks like: $responseBodyString")
+
+
+                    val type: Type = Types.newParameterizedType(
+                        MutableList::class.java,
+                        Chat::class.java
+                    )
+
+                    val jsonAdapterChatArray: JsonAdapter<List<Chat>> =
+                        Global.moshi.adapter(type)
+
+                    val newChats = jsonAdapterChatArray.fromJson(responseBodyString) as ArrayList<Chat>?
+
+                    if (newChats != chats) {
+
+                        chats = newChats
+
+                        chats?.let { adapter?.setChats(it) }
+
+                        adapter?.notifyDataSetChanged()
+                    }
+
+                    view?.let {
+                        Snackbar.make(
+                            it,
+                            "Pulled from chats",
+                            Snackbar.LENGTH_SHORT
+                        ).show()
+                    }
+                } catch (e: Exception) {
+
+                }
+
+                delay(timeInterval)
+            }
+        }
+    }
+
+    @InternalCoroutinesApi
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        val getRequest: Request = Request.Builder()
-            .url("https://${Global.serverIpAndPort}/chat?author=$friendName&recipient=${Global.userName}&isReading=true")
-            .build()
 
         var hasFinishedNetworkJob = false
 
         try {
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+                val getRequest: Request = Request.Builder()
+                    .url("https://${Global.serverIpAndPort}/chat?author=$friendName&recipient=${Global.userName}")
+                    .build()
+
                 val response = Global.client.newCall(getRequest).execute()
 
                 println(response.request)
@@ -169,6 +225,8 @@ private var _binding: FragmentFirstBinding? = null
                 Snackbar.LENGTH_SHORT
             ).show()
         }
+
+        val job = startRepeatingJob(20000)
     }
 
 override fun onDestroyView() {
