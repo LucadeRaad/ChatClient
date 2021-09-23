@@ -50,6 +50,81 @@ private var _binding: FragmentFirstBinding? = null
         return binding.root
     }
 
+    private fun sendMessage(view: View) {
+        val chatBox = view.findViewById<TextView>(R.id.chatBox)
+        val message = chatBox.text.toString()
+
+        if (message == "")
+        {
+            return
+        }
+
+        val json = """
+            {
+                "date": "2021-09-27T23:09:27.529507+00:00",
+                "message": "$message",
+                "author": "${Global.userName}",
+                "recipient": "$friendName"
+            }
+            """.trimIndent()
+
+        val requestBody = json.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
+
+        try {
+            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+                val postRequest: Request = Request.Builder()
+                    .url("http://" + Global.serverIpAndPort + "/chat")
+                    .post(requestBody)
+                    .build()
+
+                Log.d("Debug", "test!")
+
+                try {
+                    val response = Global.client.newCall(postRequest).execute()
+
+                    println(response.request)
+                } catch (e: IOException) {
+                    println("message sending: #$e")
+                }
+
+
+                Snackbar.make(
+                    view,
+                    "made it to the server!",
+                    Snackbar.LENGTH_SHORT
+                ).show()
+
+                //Log.d("Debug", "test $response")
+            }
+        } catch (e: IOException) {
+            println("message sending: #$e")
+        }
+
+        val index = adapter?.itemCount
+
+        val newChat = Chat (
+            Date = "just now",
+            Message = message,
+            Author = Global.userName,
+            Recipient = friendName,
+            Read = false
+        )
+
+        if (index != null) {
+            chats?.add(index, newChat)
+        }
+
+        if (index != null) {
+            adapter?.notifyItemInserted(index)
+        }
+
+        Snackbar.make(
+            view,
+            "Sent a message!",
+            Snackbar.LENGTH_SHORT
+        ).show()
+    }
+
     @InternalCoroutinesApi
     private fun startRepeatingJob(timeInterval: Long): Job {
         return CoroutineScope(Dispatchers.Default).launch {
@@ -60,15 +135,15 @@ private var _binding: FragmentFirstBinding? = null
                 println("Started an automatic pull from chats")
                 try {
                     val getRequest: Request = Request.Builder()
-                        .url("https://${Global.serverIpAndPort}/chat?author=$friendName&recipient=${Global.userName}")
+                        .url("http://${Global.serverIpAndPort}/chat?author=$friendName&recipient=${Global.userName}")
                         .build()
 
                     val response = Global.client.newCall(getRequest).execute()
 
-                    //println(response.request)
+                    println(response.request)
 
                     val responseBodyString = response.body!!.string()
-                    //println("response.body!!.string() looks like: $responseBodyString")
+                    println("response.body!!.string() looks like: $responseBodyString")
 
 
                     val type: Type = Types.newParameterizedType(
@@ -98,7 +173,7 @@ private var _binding: FragmentFirstBinding? = null
                         ).show()
                     }
                 } catch (e: Exception) {
-
+                    println("automatic pull #$e")
                 }
 
                 delay(timeInterval)
@@ -115,7 +190,7 @@ private var _binding: FragmentFirstBinding? = null
         try {
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                 val getRequest: Request = Request.Builder()
-                    .url("https://${Global.serverIpAndPort}/chat?author=$friendName&recipient=${Global.userName}")
+                    .url("http://${Global.serverIpAndPort}/chat?author=$friendName&recipient=${Global.userName}")
                     .build()
 
                 val response = Global.client.newCall(getRequest).execute()
@@ -140,7 +215,7 @@ private var _binding: FragmentFirstBinding? = null
                 }
                 catch (e: Exception)
                 {
-                    println("#####$e")
+                    println("Startup pull #$e")
                 }
 
                 hasFinishedNetworkJob = true
@@ -168,62 +243,7 @@ private var _binding: FragmentFirstBinding? = null
         }
 
         binding.Send.setOnClickListener {
-            val chatBox = view.findViewById<TextView>(R.id.chatBox)
-            val message = chatBox.text.toString()
-
-            if (message == "")
-            {
-                return@setOnClickListener
-            }
-
-            val json = """
-            {
-                "date": "2021-09-27T23:09:27.529507+00:00",
-                "message": "$message",
-                "author": "${Global.userName}",
-                "recipient": "$friendName"
-            }
-            """.trimIndent()
-
-            val requestBody = json.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
-
-            try {
-                viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-                    val postRequest: Request = Request.Builder()
-                        .url("https://" + Global.serverIpAndPort + "/chat")
-                        .post(requestBody)
-                        .build()
-
-                    val response = Global.client.newCall(postRequest).execute()
-                    Log.d("Debug", response.body!!.string())
-                }
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-
-            val index = adapter?.itemCount
-
-            val newChat = Chat (
-                Date = "just now",
-                Message = message,
-                Author = Global.userName,
-                Recipient = friendName,
-                Read = false
-            )
-
-            if (index != null) {
-                chats?.add(index, newChat)
-            }
-
-            if (index != null) {
-                adapter?.notifyItemInserted(index)
-            }
-
-            Snackbar.make(
-                view,
-                "Sent a message!",
-                Snackbar.LENGTH_SHORT
-            ).show()
+            sendMessage(view)
         }
 
         val job = startRepeatingJob(20000)

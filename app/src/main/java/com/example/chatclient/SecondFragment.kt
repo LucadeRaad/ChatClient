@@ -29,11 +29,6 @@ import kotlinx.coroutines.*
 import okhttp3.internal.EMPTY_REQUEST
 import java.lang.reflect.Type
 import kotlin.collections.ArrayList
-import android.graphics.ColorSpace.Model
-
-
-
-
 
 /**
  * A simple [Fragment] subclass as the second destination in the navigation.
@@ -45,7 +40,7 @@ class SecondFragment : Fragment(), FriendsAdapter.OnItemClickListener {
     enum class FRIENDACTION {Add, Remove}
 
     private val getRequest: Request = Request.Builder()
-        .url("https://${Global.serverIpAndPort}/friend?name=${Global.userName}")
+        .url("http://${Global.serverIpAndPort}/friend?name=${Global.userName}")
         .build()
 
 private var _binding: FragmentSecondBinding? = null
@@ -254,7 +249,7 @@ private var _binding: FragmentSecondBinding? = null
                     }
 
                 } catch (e: Exception) {
-
+                    println("#####$e")
                 }
 
                 delay(timeInterval)
@@ -334,7 +329,7 @@ private var _binding: FragmentSecondBinding? = null
             showAddItemDialog(FRIENDACTION.Remove, view)
         }
 
-        var job = startRepeatingJob(20000)
+        var job = startRepeatingJob(200000)
     }
 
 override fun onDestroyView() {
