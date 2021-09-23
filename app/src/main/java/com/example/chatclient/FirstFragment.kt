@@ -76,25 +76,7 @@ private var _binding: FragmentFirstBinding? = null
                     .url("http://" + Global.serverIpAndPort + "/chat")
                     .post(requestBody)
                     .build()
-
-                Log.d("Debug", "test!")
-
-                try {
-                    val response = Global.client.newCall(postRequest).execute()
-
-                    println(response.request)
-                } catch (e: IOException) {
-                    println("message sending: #$e")
-                }
-
-
-                Snackbar.make(
-                    view,
-                    "made it to the server!",
-                    Snackbar.LENGTH_SHORT
-                ).show()
-
-                //Log.d("Debug", "test $response")
+                Global.client.newCall(postRequest).execute()
             }
         } catch (e: IOException) {
             println("message sending: #$e")
