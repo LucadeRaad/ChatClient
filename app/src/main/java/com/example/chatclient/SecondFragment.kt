@@ -95,7 +95,7 @@ private var _binding: FragmentSecondBinding? = null
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                 try {
                     val postRequest: Request = Request.Builder()
-                        .url("https://${Global.serverIpAndPort}/friend?name=${Global.userName}")
+                        .url("http://${Global.serverIpAndPort}/friend?name=${Global.userName}")
                         .post(requestBody)
                         .build()
 
@@ -143,7 +143,7 @@ private var _binding: FragmentSecondBinding? = null
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                 isOnline = try {
                     val deleteRequest: Request = Request.Builder()
-                            .url("https://${Global.serverIpAndPort}/friend?name=${Global.userName}&friend=$friend")
+                            .url("http://${Global.serverIpAndPort}/friend?name=${Global.userName}&friend=$friend")
                             .delete(EMPTY_REQUEST)
                             .build()
 
